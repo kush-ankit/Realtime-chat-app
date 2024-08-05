@@ -1,20 +1,14 @@
 "use client"
-import { useEffect } from 'react';
-import { io } from 'socket.io-client';
-const socket = io('http://localhost:4000');
+import { socket } from '@/services/socket.service';
 
 export default function Home() {
-
-  useEffect(() => {
-    socket.on('connect', () => {
-      console.log('Connected to server');
-    })
+  socket.on('message', (data) => {
+    console.log("message:", data);
   })
-
   return (
     <main>
-      <p>connections:{socket.connected}</p>
-      <button onClick={()=>socket.emit('hi','you are good')}>click</button>
+      <button onClick={() => socket.emit('message', 'you are good')}>click</button>
     </main>
   );
 }
+ 
