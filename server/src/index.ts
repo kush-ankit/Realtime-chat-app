@@ -1,12 +1,13 @@
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
-
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
@@ -16,11 +17,15 @@ app.get("/", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("Socket connection established", socket.id);
-  socket.on('message', (data) => {
+  console.log("Socket connected: ", socket.id);
+  socket.on('hello', (data) => {
     console.log(data);
-    io.emit('message', data);
+  })
+  socket.on('disconnect', () => {
+    console.log('Socket disconnected: ', socket.id);
   })
 });
 
-httpServer.listen(4000);
+httpServer.listen(4000, () => {
+  console.log("Server is running on port 4000");
+});
