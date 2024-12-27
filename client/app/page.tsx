@@ -12,6 +12,15 @@ export default function Chat() {
   const [input, setInput] = useState<string>('');
   const socket = useContext(SocketContext);
 
+  useEffect(() => {
+    if (socket) {
+      socket.emit('joinRoom', 'myroom');
+    }
+    return () => {
+      socket?.off('joinRoom');
+    };
+  }, [socket]);
+
 
   useEffect(() => {
     if (socket) {
@@ -20,7 +29,7 @@ export default function Chat() {
         console.log(data);
       });
       return () => {
-        socket.off('message');
+        socket.off('sendMessage');
       };
     }
   }, [messages, socket]);
@@ -29,7 +38,7 @@ export default function Chat() {
     e.preventDefault();
     if (input.trim()) {
       if (socket) {
-        socket.emit('sendMessage', { message: input, room: "1" });
+        socket.emit('sendMessage', { message: input, room: "myroom" });
       }
       setMessages([...messages, { sender: 'user', content: input }]);
       setInput('');
@@ -40,7 +49,7 @@ export default function Chat() {
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <div className="bg-blue-600 text-white py-4 px-6 text-lg font-semibold">
-        Two-Person Chat
+        Chat Room
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">

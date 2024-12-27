@@ -23,13 +23,32 @@ const io = new Server(httpServer, {
 
 io.on("connect", (socket) => {
   console.log("Socket connected: ", socket.id);
+
+  socket.on('joinRoom', (roomName) => {
+    socket.join(roomName);
+    const room = io.sockets.adapter.rooms.get(roomName);
+    if (room) {
+      const usersInRoom = Array.from(room);
+      console.log(`Users in room ${roomName}:`, usersInRoom);
+    }
+    console.log(`${socket.id} joined room ${roomName}`);
+    socket.to(roomName).emit('sendMessage', `User ${socket.id} has joined the room!`);
+  });
+
   socket.on("sendMessage", (data) => {
     console.log(data);
-    io.emit('recieveMessage', data.message)
-  })
+    socket.to(data.room).emit('recieveMessage', data.message);
+  });
+
+  socket.on("allUser", () => {
+    io.sockets.sockets.forEach((socket) => {
+      console.log(`Connected User: ${socket.id}`);
+    });
+  });
+
   socket.on("disconnect", () => {
     console.log('Socket disconnected: ', socket.id);
-  })
+  });
 });
 
 httpServer.listen(port, () => {
