@@ -16,10 +16,8 @@ export default function Page() {
     }, [socket]);
 
     function handleclick() {
-        socket?.emit('allUser')
+        socket?.emit('allSockets');
     }
-
-
 
 
     return (

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { SocketProvider } from "@/providers/socketProviders";
 
 export const metadata: Metadata = {
   title: "stop",
@@ -15,9 +14,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SocketProvider>
-          {children}
-        </SocketProvider>
+        {children}
       </body>
     </html>
   );
