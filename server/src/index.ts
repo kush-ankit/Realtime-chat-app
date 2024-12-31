@@ -2,15 +2,37 @@ import express, { Request, Response } from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { userSave } from "./controllers/user.controller";
-
+import { authRoute } from "./routers/auth.route";
+import mongoose from "mongoose";
+import { tokenValidator } from "./middleware/reqValidator";
+require('dotenv').config();
 const app = express();
 const cors = require("cors")
 const httpServer = createServer(app);
+const port = process.env.PORT || 4000;
 
-const port = process.env.PORT || 4001;
+const connectWithRetry = () => {
+  mongoose
+    .connect(process.env.mongoURI || "")
+    .then(() => console.log('MongoDB connected successfully'))
+    .catch((err) => {
+      console.error(err);
+      setTimeout(connectWithRetry, 30000)
+    });
+}
+connectWithRetry();
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+
+
+app.use("/api/auth", authRoute);
+app.get("/api/data", tokenValidator, (req: Request, res: Response) => {
+  console.log("auth clear");
+  res.header("token", req.header("token"))
+  res.send("djflkjdlf")
+})
 
 app.get("/", (req: Request, res: Response) => {
   console.log("Request received");
