@@ -10,6 +10,8 @@ const app = express();
 const cors = require("cors")
 const httpServer = createServer(app);
 const port = process.env.PORT || 4000;
+const cookieParser = require('cookie-parser')
+
 
 const connectWithRetry = () => {
   mongoose
@@ -23,8 +25,12 @@ const connectWithRetry = () => {
 connectWithRetry();
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+  credentials: true,
+  origin: 'http://localhost:3000'
+}));
 
 
 app.use("/api/auth", authRoute);

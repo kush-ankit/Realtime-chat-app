@@ -1,9 +1,15 @@
 "use client"
-import { FormEvent, useState } from "react";
+import { serverURI } from "@/utils/serverURI";
+import axios from "axios";
+import { FormEvent, use, useState } from "react";
 
 export default function Page() {
-
-    const [isLogin, setIsLogin] = useState(true); // Toggle between Login and Register
+    const [isLogin, setIsLogin] = useState<boolean>(true);
+    const [name, setName] = useState<string>();
+    const [username, setUsername] = useState<string>()
+    const [email, setEmail] = useState<string>();
+    const [password, setPassword] = useState<string>();
+    const [error, setError] = useState<string>();
 
     const toggleForm = () => {
         setIsLogin(!isLogin);
@@ -11,14 +17,30 @@ export default function Page() {
 
     const handleLogin = (e: FormEvent) => {
         e.preventDefault();
-        // Add login logic here
-        alert("Logged in successfully!");
+        try {
+            axios.post(`${serverURI}/api/auth/login`, {
+                email, password
+            }, { withCredentials: true }).then(res => console.log(res.data));
+        } catch (error) {
+            console.error(error);
+        }
+
     };
 
     const handleRegister = (e: FormEvent) => {
         e.preventDefault();
-        // Add registration logic here
-        alert("Registered successfully!");
+        try {
+            axios.post(`${serverURI}/api/auth/register`, {
+                email, password, name, username
+            }).then(res => {
+                if (res.status) {
+                    setIsLogin(true);
+                }
+            });
+        } catch (error) {
+            console.error(error);
+        }
+
     };
 
     return (
@@ -47,6 +69,7 @@ export default function Page() {
                                 className="w-full px-4 py-2 border border-gray-700 bg-gray-900 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="Enter your full name"
                                 required
+                                onChange={(e) => setName(e.target.value)}
                             />
                         </div>
                     )}
@@ -63,8 +86,27 @@ export default function Page() {
                             className="w-full px-4 py-2 border border-gray-700 bg-gray-900 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                             placeholder="Enter your email"
                             required
+                            onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
+                    {!isLogin && (
+                        <div className="mb-4">
+                            <label
+                                htmlFor="username"
+                                className="block text-sm font-medium text-gray-300"
+                            >
+                                Username
+                            </label>
+                            <input
+                                type="text"
+                                id="username"
+                                className="w-full px-4 py-2 border border-gray-700 bg-gray-900 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                placeholder="Enter your username"
+                                required
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+                        </div>
+                    )}
                     <div className="mb-4">
                         <label
                             htmlFor="password"
@@ -78,25 +120,10 @@ export default function Page() {
                             className="w-full px-4 py-2 border border-gray-700 bg-gray-900 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                             placeholder="Enter your password"
                             required
+                            onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
-                    {!isLogin && (
-                        <div className="mb-4">
-                            <label
-                                htmlFor="confirm-password"
-                                className="block text-sm font-medium text-gray-300"
-                            >
-                                Confirm Password
-                            </label>
-                            <input
-                                type="password"
-                                id="confirm-password"
-                                className="w-full px-4 py-2 border border-gray-700 bg-gray-900 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="Confirm your password"
-                                required
-                            />
-                        </div>
-                    )}
+
                     <button
                         type="submit"
                         className="w-full py-3 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white font-bold rounded-lg shadow-md transition duration-300"

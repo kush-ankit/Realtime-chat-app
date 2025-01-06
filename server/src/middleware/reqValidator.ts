@@ -12,7 +12,7 @@ export const tokenValidator = (
     res: Response,
     next: NextFunction
 ) => {
-    const token = req.header("token")?.split(" ")[1];
+    const token = req.cookies.token;
 
     if (!token) {
         return res.status(401).json({ status: false, message: "Access denied. No token provided." });

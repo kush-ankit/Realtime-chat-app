@@ -9,7 +9,7 @@ export const register = async (req: Request, res: Response) => {
     try {
         const { name, username, email, password } = req.body;
 
-        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+        const existingUser = await User.findOne({ $or: [{ email }] });
         if (existingUser) {
             return res.status(400).json({ message: "Email or username already in use." });
         }
@@ -45,9 +45,10 @@ export const login = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "Invalid email or password" });
         }
 
-        const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
+        const token = jwt.sign({ id: user._id, email: user.email, username: user.username }, JWT_SECRET);
+        console.log("get request token");
 
-        res.status(200).json({ message: "Login successful", token, user });
+        res.cookie('token', token, { httpOnly: true }).status(200).json({ message: "Login successful", token, user });
     } catch (error) {
         console.error("Error logging in:", error);
         res.status(500).json({ message: "Internal server error" });
