@@ -4,7 +4,8 @@ import { Server } from "socket.io";
 import { userSave } from "./controllers/user.controller";
 import { authRoute } from "./routers/auth.route";
 import mongoose from "mongoose";
-import { tokenValidator } from "./middleware/reqValidator";
+import { AuthenticatedRequest, tokenValidator } from "./middleware/reqValidator";
+import { CustomSocket } from "../types/types";
 require('dotenv').config();
 const app = express();
 const cors = require("cors")
@@ -34,9 +35,8 @@ app.use(cors({
 
 
 app.use("/api/auth", authRoute);
-app.get("/api/data", tokenValidator, (req: Request, res: Response) => {
-  console.log("auth clear");
-  res.header("token", req.header("token"))
+app.get("/api/data", tokenValidator, (req: AuthenticatedRequest, res: Response) => {
+  console.log(req.user);
   res.send("djflkjdlf")
 })
 
@@ -47,17 +47,28 @@ app.get("/", (req: Request, res: Response) => {
 
 const io = new Server(httpServer, {
   cors: {
-    origin: '*',
+    origin: 'http://localhost:3000',
     methods: ["GET", "POST"],
   },
 });
 
+io.use((socket: CustomSocket, next) => {
+  const username = socket.handshake.auth?.username;
+  if (!username) {
+    return next(new Error("invalid username"));
+  }
+  socket.username = username;
+  next();
+});
 
-io.on("connect", (socket) => {
+
+io.on("connect", (socket: CustomSocket) => {
   console.log("Socket connected: ", socket.id);
 
   socket.on('joinRoom', (roomName) => {
     socket.join(roomName);
+    console.log(socket.username);
+
     console.log(`${socket.id} joined room ${roomName}`);
     socket.to(roomName).emit('sendMessage', `User ${socket.id} has joined the room!`);
   });

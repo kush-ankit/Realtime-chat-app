@@ -46,7 +46,6 @@ export const login = async (req: Request, res: Response) => {
         }
 
         const token = jwt.sign({ id: user._id, email: user.email, username: user.username }, JWT_SECRET);
-        console.log("get request token");
 
         res.cookie('token', token, { httpOnly: true }).status(200).json({ message: "Login successful", token, user });
     } catch (error) {
