@@ -1,6 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
-// Interface representing a User document in MongoDB
 export interface IUser extends Document {
     name: string;
     email: string;
@@ -10,7 +9,6 @@ export interface IUser extends Document {
     updatedAt: Date;
 }
 
-// Mongoose Schema for User
 const UserSchema: Schema<IUser> = new Schema<IUser>(
     {
         name: {

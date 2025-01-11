@@ -6,6 +6,7 @@ import { authRoute } from "./routers/auth.route";
 import mongoose from "mongoose";
 import { AuthenticatedRequest, tokenValidator } from "./middleware/reqValidator";
 import { CustomSocket } from "../types/types";
+import { IUser } from "./Model/user.model";
 require('dotenv').config();
 const app = express();
 const cors = require("cors")
@@ -62,8 +63,16 @@ io.use((socket: CustomSocket, next) => {
 });
 
 
-io.on("connect", (socket: CustomSocket) => {
-  console.log("Socket connected: ", socket.id);
+io.on("connection", (socket: CustomSocket) => {
+
+  const users = [];
+  for (let [id, soc] of io.of("/").sockets) {
+    users.push({
+      userID: id,
+      username: soc.username,
+    });
+  }
+  socket.emit("users", users);
 
   socket.on('joinRoom', (roomName) => {
     socket.join(roomName);
