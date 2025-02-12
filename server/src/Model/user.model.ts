@@ -1,25 +1,20 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IUser extends Document {
-    name: string;
     email: string;
     username: string;
     password: string;
     createdAt: Date;
-    updatedAt: Date;
+    chatList: Schema.Types.ObjectId[];
+    updatedAt?: Date;
 }
 
 const UserSchema: Schema<IUser> = new Schema<IUser>(
     {
-        name: {
-            type: String,
-            required: [true, "Name is required"],
-            trim: true,
-        },
         username: {
             type: String,
             required: [true, "Username is required"],
-            unique: true, 
+            unique: true,
             trim: true,
             minlength: [3, "Username must be at least 3 characters long"], // Minimum length validation
         },
@@ -35,7 +30,7 @@ const UserSchema: Schema<IUser> = new Schema<IUser>(
             type: String,
             required: [true, "Password is required"],
             minlength: [6, "Password must be at least 6 characters long"],
-        }
+        },
     },
     {
         timestamps: true,

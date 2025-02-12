@@ -13,7 +13,7 @@ const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
 
     useEffect(() => {
-        const newSocket = io(serverURI);
+        const newSocket = io(serverURI, { auth: { username: 'Ankit' } });
         setSocket(newSocket);
         return () => {
             newSocket.disconnect();

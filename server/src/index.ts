@@ -1,7 +1,6 @@
 import express, { Request, Response } from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { userSave } from "./controllers/user.controller";
 import { authRoute } from "./routers/auth.route";
 import mongoose from "mongoose";
 import { AuthenticatedRequest, tokenValidator } from "./middleware/reqValidator";
@@ -63,11 +62,14 @@ io.use((socket: CustomSocket, next) => {
 
 
 io.on("connection", (socket: CustomSocket) => {
+  console.log("User connected: ", socket.id);
 
-  const users = [];
-  for (let [id, soc] of io.of("/").sockets) {
+  const users: any = [];
+
+  for (let [id, socket] of io.of("/").sockets) {
     users.push({
-      userID: id,
+      id,
+      name: socket.username
     });
   }
   socket.emit("users", users);
@@ -81,7 +83,6 @@ io.on("connection", (socket: CustomSocket) => {
   });
 
   socket.on("sendMessage", (data) => {
-    userSave(data)
     socket.to(data.room).emit('recieveMessage', data.message);
   });
 
