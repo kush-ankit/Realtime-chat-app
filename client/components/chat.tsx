@@ -12,27 +12,6 @@ export default function Chat() {
     const [input, setInput] = useState<string>('');
     const socket = useContext(SocketContext);
 
-    useEffect(() => {
-        if (socket) {
-            socket.emit('joinRoom', 'myroom');
-        }
-        return () => {
-            socket?.off('joinRoom');
-        };
-    }, [socket]);
-
-
-    useEffect(() => {
-        if (socket) {
-            socket.on('recieveMessage', (data) => {
-                setMessages([...messages, { sender: 'friend', content: data }]);
-                console.log(data);
-            });
-            return () => {
-                socket.off('sendMessage');
-            };
-        }
-    }, [messages, socket]);
 
     const handleSend = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -47,7 +26,7 @@ export default function Chat() {
 
 
     return (
-        <div className="flex flex-col h-screen bg-gray-100">
+        <div className="flex flex-col h-screen bg-gray-100 w-full">
             <div className="bg-blue-600 text-white py-4 px-6 text-lg font-semibold">
                 Chat Room
             </div>
@@ -60,7 +39,7 @@ export default function Chat() {
                             }`}
                     >
                         <div
-                            className={`px-4 py-2 rounded-lg max-w-xs ${msg.sender === 'user'
+                            className={`px-4 py-2 rounded-lg max-w-screen ${msg.sender === 'user'
                                 ? 'bg-blue-500 text-white'
                                 : 'bg-gray-200 text-gray-800'
                                 }`}

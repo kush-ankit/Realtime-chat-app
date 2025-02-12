@@ -1,6 +1,7 @@
 "use client"
 import { serverURI } from "@/utils/serverURI";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { FormEvent, use, useState } from "react";
 
 export default function Page() {
@@ -10,6 +11,7 @@ export default function Page() {
     const [email, setEmail] = useState<string>();
     const [password, setPassword] = useState<string>();
     const [error, setError] = useState<string>();
+    const router = useRouter();
 
     const toggleForm = () => {
         setIsLogin(!isLogin);
@@ -20,7 +22,12 @@ export default function Page() {
         try {
             axios.post(`${serverURI}/api/auth/login`, {
                 email, password
-            }, { withCredentials: true }).then(res => console.log(res.data));
+            }, { withCredentials: true }).then(res => {
+                console.log(res);
+                if (res.status) {
+                    router.push(`/${res.data.user.name}`);
+                }
+            });
         } catch (error) {
             console.error(error);
         }
