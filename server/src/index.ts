@@ -53,55 +53,59 @@ const io = new Server(httpServer, {
 
 io.use((socket: CustomSocket, next) => {
   const username = socket.handshake.auth?.username;
-  if (!username) {
+  const uid = socket.handshake.auth?.uid;
+  if (!username && !uid) {
     return next(new Error("invalid username"));
   }
   socket.username = username;
+  socket.uid = uid;
   next();
 });
+
+const activeUsers = new Map<string, string>();
 
 
 io.on("connection", (socket: CustomSocket) => {
   console.log("User connected: ", socket.id);
 
   const users: any = [];
-
   for (let [id, socket] of io.of("/").sockets) {
     users.push({
       id,
       name: socket.username
     });
   }
-  socket.emit("users", users);
+  io.emit("users", users);
 
-  socket.on('joinRoom', (roomName) => {
+  socket.on('join-room', async (roomName) => {
     socket.join(roomName);
+    activeUsers.set(socket)
     console.log(socket.username);
-
     console.log(`${socket.id} joined room ${roomName}`);
     socket.to(roomName).emit('sendMessage', `User ${socket.id} has joined the room!`);
   });
 
-  socket.on("sendMessage", (data) => {
-    socket.to(data.room).emit('recieveMessage', data.message);
-  });
+  // socket.on("sendMessage", (data) => {
+  //   socket.to(data.room).emit('recieveMessage', data.message);
+  // });
 
-  socket.on("allSockets", () => {
-    io.sockets.sockets.forEach((socket) => {
-      console.log(`Connected User: ${socket.id}`);
-    });
-  });
+  // socket.on("allSockets", () => {
+  //   io.sockets.sockets.forEach((socket) => {
+  //     console.log(`Connected User: ${socket.id}`);
+  //   });
+  // });
 
-  socket.on('getAllUserInRoom', (roomName) => {
-    const room = io.sockets.adapter.rooms.get(roomName);
-    if (room) {
-      const usersInRoom = Array.from(room);
-      console.log(`Users in room ${roomName}:`, usersInRoom);
-    }
-  });
+  // socket.on('getAllUserInRoom', (roomName) => {
+  //   const room = io.sockets.adapter.rooms.get(roomName);
+  //   if (room) {
+  //     const usersInRoom = Array.from(room);
+  //     console.log(`Users in room ${roomName}:`, usersInRoom);
+  //   }
+  // });
 
   socket.on("disconnect", () => {
     console.log('Socket disconnected: ', socket.id);
+    io.emit('users', users);
   });
 });
 

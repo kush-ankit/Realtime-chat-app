@@ -15,13 +15,14 @@ export default function Chat() {
 
     const handleSend = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (input.trim()) {
-            if (socket) {
-                socket.emit('sendMessage', { message: input, room: "myroom" });
-            }
-            setMessages([...messages, { sender: 'user', content: input }]);
-            setInput('');
+        if (socket) {
+            socket.emit('joinRoom', 'room1');
         }
+        // if (input.trim()) {
+           
+        //     // setMessages([...messages, { sender: 'user', content: input }]);
+        //     // setInput('');
+        // }
     };
 
 
