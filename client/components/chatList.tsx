@@ -1,5 +1,5 @@
 export interface IChatItem {
-  id: string;
+  userId: string;
   name: string;
   type: "friend" | "group";
   isOnline?: boolean;
@@ -18,7 +18,7 @@ export default function ChatItem({ chats, onSelectChat }: ChatListProps) {
       <ul className="flex flex-col md:gap-3 gap-2 md:p-2 p-1">
         {chats?.map((chat) => (
           <li
-            key={chat.id}
+            key={chat.userId}
             className="flex items-center p-3 rounded-md cursor-pointer hover:bg-gray-700"
             onClick={() => onSelectChat(chat)}
           >

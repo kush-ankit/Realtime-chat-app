@@ -1,28 +1,42 @@
 "use client"
 import { SocketContext } from "@/providers/socketProviders";
 import { FormEvent, useContext, useEffect, useState } from "react";
+import { IChatItem } from "@/components/chatList";
+import { Socket } from "socket.io-client";
 
 interface Message {
     sender: 'user' | 'friend';
     content: string;
 }
 
-export default function Chat() {
+export default function Chat({ chat, socket }: { chat: IChatItem, socket: Socket }) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState<string>('');
-    const socket = useContext(SocketContext);
+
+
+    useEffect(() => {
+        socket.emit("user-connected", chat.userId);
+
+        socket.on("receive-message", (data) => {
+            setMessages([...messages, { sender: 'friend', content: data.message }]);
+        });
+
+        return () => {
+            socket.off("receive-message");
+        };
+    }, [chat.userId, messages, socket]);
 
 
     const handleSend = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (socket) {
-            socket.emit('joinRoom', 'room1');
+            socket.emit('private-message', { senderId: 'cHix0VnQdN6EQEpoAAAF', receiverId: chat.userId, message: input });
         }
-        // if (input.trim()) {
-           
-        //     // setMessages([...messages, { sender: 'user', content: input }]);
-        //     // setInput('');
-        // }
+        if (input.trim()) {
+
+            setMessages([...messages, { sender: 'user', content: input }]);
+            setInput('');
+        }
     };
 
 

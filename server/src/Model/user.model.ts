@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IUser extends Document {
     email: string;
-    username: string;
+    name: string;
     password: string;
     createdAt: Date;
     chatList: Schema.Types.ObjectId[];
@@ -11,7 +11,7 @@ export interface IUser extends Document {
 
 const UserSchema: Schema<IUser> = new Schema<IUser>(
     {
-        username: {
+        name: {
             type: String,
             required: [true, "Username is required"],
             unique: true,

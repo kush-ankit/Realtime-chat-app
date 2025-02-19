@@ -1,5 +1,6 @@
 "use client"
 import { serverURI } from "@/utils/serverURI";
+import { useUserStore } from "@/utils/states";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { FormEvent, use, useState } from "react";
@@ -7,10 +8,10 @@ import { FormEvent, use, useState } from "react";
 export default function Page() {
     const [isLogin, setIsLogin] = useState<boolean>(true);
     const [name, setName] = useState<string>();
-    const [username, setUsername] = useState<string>()
     const [email, setEmail] = useState<string>();
     const [password, setPassword] = useState<string>();
     const [error, setError] = useState<string>();
+    const setUserStore = useUserStore((state: any) => state.setUserStore)
     const router = useRouter();
 
     const toggleForm = () => {
@@ -25,6 +26,7 @@ export default function Page() {
             }, { withCredentials: true }).then(res => {
                 console.log(res);
                 if (res.status) {
+                    setUserStore({ name: res.data.user.name, email: res.data.user.email, userId: res.data.user.userId });
                     router.push(`/${res.data.user.name}`);
                 }
             });
@@ -38,7 +40,7 @@ export default function Page() {
         e.preventDefault();
         try {
             axios.post(`${serverURI}/api/auth/register`, {
-                email, password, name, username
+                email, password, name
             }).then(res => {
                 if (res.status) {
                     setIsLogin(true);
@@ -62,24 +64,6 @@ export default function Page() {
                         : "Join us to explore amazing features."}
                 </p>
                 <form onSubmit={isLogin ? handleLogin : handleRegister}>
-                    {!isLogin && (
-                        <div className="mb-4">
-                            <label
-                                htmlFor="name"
-                                className="block text-sm font-medium text-gray-300"
-                            >
-                                Full Name
-                            </label>
-                            <input
-                                type="text"
-                                id="name"
-                                className="w-full px-4 py-2 border border-gray-700 bg-gray-900 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="Enter your full name"
-                                required
-                                onChange={(e) => setName(e.target.value)}
-                            />
-                        </div>
-                    )}
                     <div className="mb-4">
                         <label
                             htmlFor="email"
@@ -99,18 +83,18 @@ export default function Page() {
                     {!isLogin && (
                         <div className="mb-4">
                             <label
-                                htmlFor="username"
+                                htmlFor="name"
                                 className="block text-sm font-medium text-gray-300"
                             >
                                 Username
                             </label>
                             <input
                                 type="text"
-                                id="username"
+                                id="name"
                                 className="w-full px-4 py-2 border border-gray-700 bg-gray-900 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="Enter your username"
+                                placeholder="Enter your full name"
                                 required
-                                onChange={(e) => setUsername(e.target.value)}
+                                onChange={(e) => setName(e.target.value)}
                             />
                         </div>
                     )}
