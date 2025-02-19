@@ -30,7 +30,7 @@ export default function ChatPage() {
                     selectedChat && socket && (
                         <Chat
                             chat={selectedChat}
-                            socket={socket}
+                            
                         />
                     )
                 }

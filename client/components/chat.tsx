@@ -3,26 +3,29 @@ import { SocketContext } from "@/providers/socketProviders";
 import { FormEvent, useContext, useEffect, useState } from "react";
 import { IChatItem } from "@/components/chatList";
 import { Socket } from "socket.io-client";
+import { useUserStore } from "@/utils/states";
 
 interface Message {
     sender: 'user' | 'friend';
     content: string;
 }
 
-export default function Chat({ chat, socket }: { chat: IChatItem, socket: Socket }) {
+export default function Chat({ chat }: { chat: IChatItem }) {
+    const socket = useContext(SocketContext);
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState<string>('');
+    const userId = useUserStore((state: any) => state.userId);
 
 
     useEffect(() => {
-        socket.emit("user-connected", chat.userId);
+        socket?.on("receive-message", (data) => {
+            console.log('message recieved', data);
 
-        socket.on("receive-message", (data) => {
             setMessages([...messages, { sender: 'friend', content: data.message }]);
         });
 
         return () => {
-            socket.off("receive-message");
+            socket?.off("receive-message");
         };
     }, [chat.userId, messages, socket]);
 
@@ -30,7 +33,7 @@ export default function Chat({ chat, socket }: { chat: IChatItem, socket: Socket
     const handleSend = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (socket) {
-            socket.emit('private-message', { senderId: 'cHix0VnQdN6EQEpoAAAF', receiverId: chat.userId, message: input });
+            socket.emit('private-message', { senderId: userId, receiverId: chat.userId, message: input });
         }
         if (input.trim()) {
 
@@ -43,7 +46,7 @@ export default function Chat({ chat, socket }: { chat: IChatItem, socket: Socket
     return (
         <div className="flex flex-col h-screen bg-gray-100 w-full">
             <div className="bg-blue-600 text-white py-4 px-6 text-lg font-semibold">
-                Chat Room
+                Chat Room of {chat.name}
             </div>
 
             <div className="flex-1 overflow-y-auto p-4">

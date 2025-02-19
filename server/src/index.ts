@@ -53,34 +53,36 @@ const io = new Server(httpServer, {
 
 io.use((socket: CustomSocket, next) => {
   const username = socket.handshake.auth?.username;
-  const uid = socket.handshake.auth?.uid;
-  if (!username && !uid) {
+  const userId = socket.handshake.auth?.userId;
+  if (!username && !userId) {
     return next(new Error("invalid username"));
   }
   socket.username = username;
-  socket.uid = uid;
+  socket.userId = userId;
   next();
 });
 
 const activeUsers = new Map<string, string>();
 
 
-io.on("connection", (socket: CustomSocket) => {
+io.on("connection", async (socket: CustomSocket) => {
   console.log("User connected: ", socket.id);
+  if (socket.userId) {
+    activeUsers.set(socket.userId, socket.id);
+  }
+
+  setTimeout(() => {
+    console.log(activeUsers);
+  }, 5000)
 
   const users: any = [];
   for (let [id, socket] of io.of("/").sockets) {
     users.push({
-      userId: id,
+      userId: socket.userId,
       name: socket.username
     });
   }
   io.emit("users", users);
-
-  socket.on("user-connected", (userId) => {
-    activeUsers.set(userId, socket.id);
-    console.log(`User ${userId} mapped to socket ${socket.id}`);
-  });
 
   // socket.on('join-room', async (roomName) => {
   //   socket.join(roomName);
@@ -92,7 +94,10 @@ io.on("connection", (socket: CustomSocket) => {
   // });
 
   socket.on("private-message", ({ senderId, receiverId, message }) => {
+    console.log(senderId, receiverId, message)
+
     const receiverSocketId = activeUsers.get(receiverId);
+    console.log(receiverSocketId);
 
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("receive-message", { senderId, message });

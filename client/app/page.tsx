@@ -26,7 +26,7 @@ export default function Page() {
             }, { withCredentials: true }).then(res => {
                 console.log(res);
                 if (res.status) {
-                    setUserStore({ name: res.data.user.name, email: res.data.user.email, userId: res.data.user.userId });
+                    setUserStore({ name: res.data.user.name, email: res.data.user.email, userId: res.data.user._id });
                     router.push(`/${res.data.user.name}`);
                 }
             });

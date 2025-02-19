@@ -17,7 +17,9 @@ const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const userId = useUserStore((state: any) => state.userId);
 
     useEffect(() => {
-        const newSocket = io(serverURI, { auth: { username: name, uid: userId } });
+        console.log(userId, name, email);
+        
+        const newSocket = io(serverURI, { auth: { username: name, userId: userId } });
         setSocket(newSocket);
         return () => {
             newSocket.disconnect();
