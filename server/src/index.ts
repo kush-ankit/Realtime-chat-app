@@ -9,7 +9,7 @@ require('dotenv').config();
 const app = express();
 const cors = require("cors")
 const httpServer = createServer(app);
-const port = process.env.PORT || 4000;
+const port = parseInt(process.env.PORT || "4000", 10);
 const cookieParser = require('cookie-parser')
 
 
@@ -29,7 +29,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
   credentials: true,
-  origin: 'http://localhost:3000'
+  origin: 'http://192.168.1.32:3000'
 }));
 
 
@@ -46,7 +46,7 @@ app.get("/", (req: Request, res: Response) => {
 
 const io = new Server(httpServer, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: 'http://192.168.1.32:3000',
     methods: ["GET", "POST"],
   },
 });
@@ -64,7 +64,6 @@ io.use((socket: CustomSocket, next) => {
 
 const activeUsers = new Map<string, string>();
 
-
 io.on("connection", async (socket: CustomSocket) => {
   console.log("User connected: ", socket.id);
   if (socket.userId) {
@@ -74,6 +73,7 @@ io.on("connection", async (socket: CustomSocket) => {
   setTimeout(() => {
     console.log(activeUsers);
   }, 5000)
+
 
   const users: any = [];
   for (let [id, socket] of io.of("/").sockets) {
@@ -132,6 +132,6 @@ io.on("connection", async (socket: CustomSocket) => {
   });
 });
 
-httpServer.listen(port, () => {
+httpServer.listen(port, "192.168.1.32", () => {
   console.log("Server is running on port " + port);
 });

@@ -1,1 +1,1 @@
-export const serverURI = "http://localhost:4000"
+export const serverURI = "http://192.168.1.32:4000"

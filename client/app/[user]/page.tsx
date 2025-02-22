@@ -13,24 +13,29 @@ export default function ChatPage() {
     const [selectedChat, setSelectedChat] = useState<IChatItem | null>(null);
 
 
-
     useEffect(() => {
         socket?.on('users', (users) => {
-            console.log(users);
+            console.log(users)
             setChatList(users)
         })
+        socket?.on("receive-message", (data) => {
+            console.log('message recieved', data);
+        });
+
+        return () => {
+            socket?.off("receive-message");
+        };
     }, [socket])
 
 
     return (
         <div className="md:flex">
             <ChatList chats={chatList} onSelectChat={setSelectedChat} />
-            <div className="hidden md:block w-full">
+            <div className="block w-full">
                 {
                     selectedChat && socket && (
                         <Chat
                             chat={selectedChat}
-                            
                         />
                     )
                 }
